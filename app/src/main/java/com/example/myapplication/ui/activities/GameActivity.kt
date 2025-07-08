@@ -21,6 +21,10 @@ import com.example.myapplication.R
 import com.example.myapplication.game.core.Tablero
 
 class GameActivity : AppCompatActivity() {
+  companion object {
+    lateinit var tableroLogico: Tablero
+    var instance: GameActivity? = null
+  }
   private var gameConfig: ConfiguracionTablero? = null
   private var posicionesMinas: List<Pair<Int, Int>> = emptyList()
   private val CELL_SIZE_DP = 40 // Tamaño de cada celda en DP
@@ -31,17 +35,17 @@ class GameActivity : AppCompatActivity() {
   private lateinit var columnEditText: EditText
   private lateinit var sendMoveButton: Button
 
-  private lateinit var tableroLogico: Tablero
-
   private lateinit var cellViews: Array<Array<TextView>>
 
   private var juegoActivo = true // Para saber si el juego ha terminado
   private var toastActual: Toast? = null
+  private val cliente = MainActivity.Sockets.clienteU
 
   override fun onCreate(savedInstanceState: Bundle?) {
     super.onCreate(savedInstanceState)
     enableEdgeToEdge() // Para el diseño Edge-to-Edge
     setContentView(R.layout.activity_game) // Carga el XML
+    instance = this
 
     recuperarConfiguracion()
 
@@ -183,17 +187,41 @@ class GameActivity : AppCompatActivity() {
         return@setOnClickListener
       }
 
+      val msj: String
+      var resultadoJugada: Int = -1
+      when(actionSpinner.selectedItemPosition) {
+        0 -> {
+          msj = "OPEN_TILE ${row}_${col}"
+          Thread { cliente?.enviarMensaje(msj) }.start()
+          resultadoJugada = 1
+        }
+        1 -> {
+          msj = "FLAG_TILE ${row}_${col}"
+          Thread { cliente?.enviarMensaje(msj) }.start()
+          resultadoJugada = 1
+        }
+        2 -> {
+          msj = "UNFLAG_TILE ${row}_${col}"
+          Thread { cliente?.enviarMensaje(msj) }.start()
+          resultadoJugada = 1
+        }
+      }
+
       // --- Le dice al MODELO qué hacer ---
-      val resultadoJugada: Int =
+      /*val resultadoJugada: Int =
           when (actionSpinner.selectedItemPosition) {
-            0 -> tableroLogico.abrirCasilla(row, col)
+            0 -> {
+              msj = "OPEN_TILE ${row}_${col}"
+              cliente?.enviarMensaje(msj)
+              //tableroLogico.abrirCasilla(row, col)
+            }
             1 -> tableroLogico.marcarCasilla(row, col)
             2 -> tableroLogico.desmarcarCasilla(row, col)
             else -> 0
-          }
+          }*/
       // --- Pide a la VISTA que se actualice ---
 
-      actualizarVistaTablero()
+      //actualizarVistaTablero()
       if (resultadoJugada == -1) {
         juegoActivo = false
         revelarTableroCompleto()
@@ -204,7 +232,7 @@ class GameActivity : AppCompatActivity() {
   }
 
   // --- VISTA: Función clave para sincronizar la UI con el estado del Modelo ---
-  private fun actualizarVistaTablero() {
+  public fun actualizarVistaTablero() {
     val config = gameConfig!!
     for (r in 0 until config.filas) {
       for (c in 0 until config.columnas) {
@@ -237,6 +265,7 @@ class GameActivity : AppCompatActivity() {
 
   private fun verificarEstadoDelJuego() {
     val resultado = tableroLogico.verificarResultado()
+    println("Resultado del juego es: ${resultado}")
 
     if (resultado != 3) { // 3 es "Partida en progreso"
       juegoActivo = false

@@ -8,9 +8,11 @@ import java.net.Socket
 import kotlin.concurrent.thread
 
 class Server(private val listener: ClientHandler.ClienteConectadoListener) : Runnable {
+  companion object {
+    lateinit var tableroServer: Tablero
+  }
   private val port: Int = 5200
   private var serverSocket: ServerSocket? = null
-  private lateinit var tablero: Tablero
   private lateinit var msj: String
 
   override fun run() {
@@ -46,8 +48,8 @@ class Server(private val listener: ClientHandler.ClienteConectadoListener) : Run
   }
 
   fun iniciarTablero(filas:Int, columnas:Int, minas:Int, nombre:String){
-    tablero = Tablero(filas, columnas, minas, nombre)
-    val posiciones = tablero.getPosicionesMinas()
+    tableroServer = Tablero(filas, columnas, minas, nombre)
+    val posiciones = tableroServer.getPosicionesMinas()
     msj = buildString {
       append("GAME_CONFIG ${filas}_${columnas}_${minas};")
       append(posiciones.joinToString(",") { "${it.first}-${it.second}" })

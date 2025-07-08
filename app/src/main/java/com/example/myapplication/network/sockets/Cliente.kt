@@ -2,6 +2,7 @@ package com.example.myapplication.network.sockets
 
 import android.content.Intent
 import android.content.Context
+import com.example.myapplication.Server
 import com.example.myapplication.ui.activities.ConfiguracionTablero
 import com.example.myapplication.ui.activities.GameActivity
 import java.io.BufferedReader
@@ -43,6 +44,36 @@ class Cliente(dir: String) : Runnable {
             putExtra("POS_MINAS", ArrayList(tableroRemoto.posiciones))
           }
           context!!.startActivity(intent)
+        }
+      }
+
+      "OPEN_TILE" -> {
+        val coordenadas = msj.removePrefix("OPEN_TILE ").split("_")
+        val row = coordenadas[0].toInt()
+        val col = coordenadas[1].toInt()
+        GameActivity.tableroLogico.abrirCasilla(row, col)
+        GameActivity.instance?.runOnUiThread {
+          GameActivity.instance?.actualizarVistaTablero()
+        }
+      }
+
+      "FLAG_TILE" -> {
+        val coordenadas = msj.removePrefix("FLAG_TILE ").split("_")
+        val row = coordenadas[0].toInt()
+        val col = coordenadas[1].toInt()
+        GameActivity.tableroLogico.marcarCasilla(row, col)
+        GameActivity.instance?.runOnUiThread {
+          GameActivity.instance?.actualizarVistaTablero()
+        }
+      }
+
+      "UNFLAG_TILE" -> {
+        val coordenadas = msj.removePrefix("UNFLAG_TILE ").split("_")
+        val row = coordenadas[0].toInt()
+        val col = coordenadas[1].toInt()
+        GameActivity.tableroLogico.desmarcarCasilla(row, col)
+        GameActivity.instance?.runOnUiThread {
+          GameActivity.instance?.actualizarVistaTablero()
         }
       }
     }

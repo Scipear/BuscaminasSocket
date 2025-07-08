@@ -38,7 +38,7 @@ class Tablero(
         nombre: String,
         posicionesPredefinidas: List<Pair<Int, Int>>
     ) : this(filas, columnas, 0, nombre) {
-        setPosicionesMinas(posicionesPredefinidas)
+        setPosicionesMinas(posicionesPredefinidas, numeroMinas)
     }
 
     private fun asignarMinas() {
@@ -240,7 +240,8 @@ class Tablero(
         return posiciones
     }
 
-    fun setPosicionesMinas(posiciones: List<Pair<Int, Int>>) {
+    fun setPosicionesMinas(posiciones: List<Pair<Int, Int>>, numMinas: Int) {
+        this.numeroMinas = numMinas
         // Limpia minas anteriores si las hay
         for (fila in 0 until filas) {
             for (col in 0 until columnas) {
@@ -331,6 +332,7 @@ class Tablero(
 
         // Condición de victoria: Todas las minas están correctamente marcadas.
         if (minasMarcadasCorrectamente == numeroMinas) {
+            println("Como es esto minasmarcadas: ${minasMarcadasCorrectamente} y numeroMinas: ${numeroMinas}")
             return 1 // Resultado 1: Ganó (marcó todas las minas)
         }
 
