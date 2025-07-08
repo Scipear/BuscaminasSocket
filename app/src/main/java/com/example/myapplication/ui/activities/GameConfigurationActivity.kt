@@ -66,7 +66,6 @@ class GameConfigurationActivity : AppCompatActivity() {
         }
 
     if (config != null) {
-      val mensaje = config.toMessage()
       // Configuración válida, podemos iniciar el juego
       Toast.makeText(
               this,
@@ -74,7 +73,13 @@ class GameConfigurationActivity : AppCompatActivity() {
               Toast.LENGTH_LONG)
           .show()
       cliente?.setContext(this)
-      Thread { cliente?.enviarMensaje(mensaje) }.start()
+      server?.iniciarTablero(config.filas, config.columnas, config.minas, "Victor")
+      val mensaje = server?.getMensaje()
+      Thread {
+        if (mensaje != null) {
+          cliente?.enviarMensaje(mensaje)
+        }
+      }.start()
     } else if (selectedId == R.id.rbCustom) {
       Toast.makeText(
               this,

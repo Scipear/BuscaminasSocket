@@ -3,10 +3,10 @@ package com.example.myapplication.game.core
 import kotlin.random.Random
 
 class Tablero(
-    private val filas: Int,
-    private val columnas: Int,
-    private val numeroMinas: Int,
-    private val nombre: String
+    private var filas: Int,
+    private var columnas: Int,
+    private var numeroMinas: Int,
+    private var nombre: String
 ) {
     private var jugadas: Int = 0
     private var juegoTerminado: Boolean = false
@@ -29,6 +29,16 @@ class Tablero(
         }
         asignarMinas()
         actualizarMinasAlrededor()
+    }
+
+    constructor(
+        filas: Int,
+        columnas: Int,
+        numeroMinas: Int,
+        nombre: String,
+        posicionesPredefinidas: List<Pair<Int, Int>>
+    ) : this(filas, columnas, 0, nombre) {
+        setPosicionesMinas(posicionesPredefinidas)
     }
 
     private fun asignarMinas() {
@@ -173,8 +183,26 @@ class Tablero(
 
 
     fun getFilas(): Int = filas
+
+    fun setFilas(filas:Int) {
+        this.filas = filas
+    }
+
     fun getColumnas(): Int = columnas
+
+    fun setColumnas(columnas:Int){
+        this.columnas = columnas
+    }
+
     fun getMinas(): Int = numeroMinas
+
+    fun setMinas(minas:Int){
+        this.numeroMinas = minas
+    }
+
+    fun setNombre(nombre:String){
+        this.nombre = nombre
+    }
 
     fun getJugadas(): Int = jugadas
 
@@ -198,6 +226,35 @@ class Tablero(
             return tablero[fila][columna]
         }
         return null
+    }
+
+    fun getPosicionesMinas(): List<Pair<Int, Int>> {
+        val posiciones = mutableListOf<Pair<Int, Int>>()
+        for (fila in 0 until filas) {
+            for (col in 0 until columnas) {
+                if (tablero[fila][col].isMina()) {
+                    posiciones.add(Pair(fila, col))
+                }
+            }
+        }
+        return posiciones
+    }
+
+    fun setPosicionesMinas(posiciones: List<Pair<Int, Int>>) {
+        // Limpia minas anteriores si las hay
+        for (fila in 0 until filas) {
+            for (col in 0 until columnas) {
+                tablero[fila][col].setMina(false)
+            }
+        }
+
+        // Asigna minas nuevas
+        for ((fila, col) in posiciones) {
+            tablero[fila][col].setMina(true)
+        }
+
+        // Recalcular minas alrededor
+        actualizarMinasAlrededor()
     }
 
     fun seguirPartida(): Boolean {

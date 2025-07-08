@@ -1,6 +1,7 @@
 package com.example.myapplication
 
 
+import com.example.myapplication.game.core.Tablero
 import com.example.myapplication.network.sockets.ClientHandler
 import java.net.ServerSocket
 import java.net.Socket
@@ -9,6 +10,8 @@ import kotlin.concurrent.thread
 class Server(private val listener: ClientHandler.ClienteConectadoListener) : Runnable {
   private val port: Int = 5200
   private var serverSocket: ServerSocket? = null
+  private lateinit var tablero: Tablero
+  private lateinit var msj: String
 
   override fun run() {
     serverSocket = ServerSocket(port)
@@ -38,17 +41,20 @@ class Server(private val listener: ClientHandler.ClienteConectadoListener) : Run
     }
   }
 
-  fun descifrarMensaje(msj: String){
-    var type: String = msj.split(" ")[0]
+  fun getPort(): Int {
+    return port
+  }
 
-    when(type){
-      "GAME_START" -> {
-
-      }
+  fun iniciarTablero(filas:Int, columnas:Int, minas:Int, nombre:String){
+    tablero = Tablero(filas, columnas, minas, nombre)
+    val posiciones = tablero.getPosicionesMinas()
+    msj = buildString {
+      append("GAME_CONFIG ${filas}_${columnas}_${minas};")
+      append(posiciones.joinToString(",") { "${it.first}-${it.second}" })
     }
   }
 
-  fun getPort(): Int {
-    return port
+  fun getMensaje(): String{
+    return msj
   }
 }

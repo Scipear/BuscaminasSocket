@@ -1,5 +1,6 @@
 package com.example.myapplication.network.sockets
 
+import com.example.myapplication.game.core.Tablero
 import java.io.BufferedReader
 import java.io.InputStreamReader
 import java.io.PrintWriter
@@ -8,6 +9,16 @@ import java.net.Socket
 class ClientHandler(sock: Socket) : Runnable {
   companion object {
     var clientes: MutableList<ClientHandler> = mutableListOf()
+
+    fun enviarMensaje(msj: String) {
+      println("Desde el handler el mensaje es: $msj")
+      for (cliente in clientes) {
+        try {
+          cliente.dos?.println(msj)
+          println("✅ Mensaje enviado a cliente")
+        } catch (e: Exception) {}
+      }
+    }
   }
 
   private var socket = sock
@@ -29,15 +40,6 @@ class ClientHandler(sock: Socket) : Runnable {
       } catch (e: Exception) {
         e.printStackTrace()
       }
-    }
-  }
-
-  fun enviarMensaje(msj: String) {
-    println("Desde el handler el mensaje es: $msj")
-    for (cliente in clientes) {
-      try {
-        cliente.dos?.println(msj)
-      } catch (e: Exception) {}
     }
   }
 

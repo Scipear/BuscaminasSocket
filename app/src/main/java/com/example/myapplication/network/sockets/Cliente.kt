@@ -35,15 +35,37 @@ class Cliente(dir: String) : Runnable {
 
     when(type){
       "GAME_CONFIG" -> {
-        val config = interpretarConfiguracion(msj)
-        if (config != null) {
-          // Lanzar GameActivity con esa config
-          val intent = Intent(context, GameActivity::class.java)
-          intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK
-          intent.putExtra("GAME_CONFIG", config)
-          context?.startActivity(intent)
+        val tableroRemoto = interpretarTableroRemoto(msj)
+        if (tableroRemoto != null && context != null) {
+          val intent = Intent(context, GameActivity::class.java).apply {
+            flags = Intent.FLAG_ACTIVITY_NEW_TASK
+            putExtra("GAME_CONFIG", tableroRemoto.config)
+            putExtra("POS_MINAS", ArrayList(tableroRemoto.posiciones))
+          }
+          context!!.startActivity(intent)
         }
       }
+    }
+  }
+
+  private fun interpretarTableroRemoto(msj: String): TableroRemoto? {
+    return try {
+      val datos = msj.removePrefix("GAME_CONFIG ").split(";")
+      val configPartes = datos[0].split("_")
+      val filas = configPartes[0].toInt()
+      val columnas = configPartes[1].toInt()
+      val minas = configPartes[2].toInt()
+
+      val posiciones = datos[1].split(",").map {
+        val (fila, col) = it.split("-")
+        Pair(fila.toInt(), col.toInt())
+      }
+
+      val config = ConfiguracionTablero(filas, columnas, minas)
+      TableroRemoto(config, posiciones)
+    } catch (e: Exception) {
+      e.printStackTrace()
+      null
     }
   }
 
@@ -71,6 +93,7 @@ class Cliente(dir: String) : Runnable {
   fun recibirMensaje() {
     try {
       var mensajeRecibido: String
+      println("NAda aqui por lo que parece pq aja")
       while (socket?.isConnected == true) {
         mensajeRecibido = dis?.readLine().toString()
         println("El mensaje recibido fue: $mensajeRecibido")
@@ -84,4 +107,9 @@ class Cliente(dir: String) : Runnable {
   fun setContext(contexto: Context){
     context = contexto
   }
+
+  data class TableroRemoto(
+    val config: ConfiguracionTablero,
+    val posiciones: List<Pair<Int, Int>>
+  )
 }

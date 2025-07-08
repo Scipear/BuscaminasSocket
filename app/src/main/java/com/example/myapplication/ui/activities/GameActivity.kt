@@ -22,6 +22,7 @@ import com.example.myapplication.game.core.Tablero
 
 class GameActivity : AppCompatActivity() {
   private var gameConfig: ConfiguracionTablero? = null
+  private var posicionesMinas: List<Pair<Int, Int>> = emptyList()
   private val CELL_SIZE_DP = 40 // Tamaño de cada celda en DP
 
   private lateinit var matrixGridLayout: GridLayout
@@ -79,6 +80,15 @@ class GameActivity : AppCompatActivity() {
           intent.getSerializableExtra("GAME_CONFIG") as? ConfiguracionTablero
         }
 
+    posicionesMinas =
+      if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+        intent.getSerializableExtra("POS_MINAS", ArrayList::class.java) as? ArrayList<Pair<Int, Int>>
+      } else {
+        @Suppress("DEPRECATION")
+        intent.getSerializableExtra("POS_MINAS") as? ArrayList<Pair<Int, Int>>
+      } ?: emptyList()
+
+
     // Log para depuración
     if (gameConfig == null) {
       Log.e("GameActivity", "¡ERROR! No se recibió la configuración del juego en el Intent.")
@@ -97,7 +107,14 @@ class GameActivity : AppCompatActivity() {
     val config = gameConfig!!
 
     // 1. Crear la instancia del MODELO
-    tableroLogico = Tablero(config.filas, config.columnas, config.minas, "Victor")
+    //tableroLogico.setFilas(config.filas)
+    //tableroLogico.setColumnas(config.columnas)
+    //tableroLogico.setMinas(config.minas)
+    //if (posicionesMinas.isNotEmpty()) {
+    //  tableroLogico.setPosicionesMinas(posicionesMinas) // Esta función la debes crear en tu clase Tablero
+    //}
+    tableroLogico = Tablero(config.filas, config.columnas, config.minas, "Victor", posicionesMinas)
+    //tableroLogico = Tablero(config.filas, config.columnas, config.minas, "Victor")
     juegoActivo = true
 
     // 2. Crear la VISTA inicial
