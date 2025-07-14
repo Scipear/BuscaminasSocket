@@ -65,6 +65,11 @@ class Cliente(dir: String) : Runnable {
         GameActivity.instance?.runOnUiThread {
           GameActivity.instance?.actualizarVistaTablero()
         }
+        if(GameActivity.instance?.getTurno() == true){
+          GameActivity.instance?.setTurno(false)
+        }else{
+          GameActivity.instance?.setTurno(true)
+        }
       }
 
       "UNFLAG_TILE" -> {
@@ -74,6 +79,21 @@ class Cliente(dir: String) : Runnable {
         GameActivity.tableroLogico.desmarcarCasilla(row, col)
         GameActivity.instance?.runOnUiThread {
           GameActivity.instance?.actualizarVistaTablero()
+        }
+        if(GameActivity.instance?.getTurno() == true){
+          GameActivity.instance?.setTurno(false)
+        }else{
+          GameActivity.instance?.setTurno(true)
+        }
+      }
+
+      "CHANGE_TURN" -> {
+        val nuevoTurno = !GameActivity.instance?.getTurno()!!
+        GameActivity.instance?.setTurno(nuevoTurno)
+        GameActivity.instance?.runOnUiThread {
+          if(nuevoTurno){
+            GameActivity.instance?.setupButtonListener()
+          }
         }
       }
     }

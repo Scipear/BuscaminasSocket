@@ -38,8 +38,10 @@ class GameActivity : AppCompatActivity() {
   private lateinit var cellViews: Array<Array<TextView>>
 
   private var juegoActivo = true // Para saber si el juego ha terminado
+  private var turno: Boolean = false
   private var toastActual: Toast? = null
   private val cliente = MainActivity.Sockets.clienteU
+  private val server = MainActivity.Sockets.serverU
 
   override fun onCreate(savedInstanceState: Bundle?) {
     super.onCreate(savedInstanceState)
@@ -60,6 +62,10 @@ class GameActivity : AppCompatActivity() {
       return // Detiene la ejecución de onCreate para evitar crashes
     }
 
+    if(server != null){
+      turno = true
+    }
+
     val mainContainer = findViewById<View>(R.id.main_container)
     ViewCompat.setOnApplyWindowInsetsListener(mainContainer) { v, insets ->
       val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
@@ -70,7 +76,9 @@ class GameActivity : AppCompatActivity() {
     inicializarVistas()
     iniciarNuevoJuego()
     setupSpinner()
-    setupButtonListener()
+    if(turno){
+      setupButtonListener()
+    }
   }
 
   private fun recuperarConfiguracion() {
@@ -105,6 +113,9 @@ class GameActivity : AppCompatActivity() {
     rowEditText = findViewById(R.id.rowEditText)
     columnEditText = findViewById(R.id.columnEditText)
     sendMoveButton = findViewById(R.id.sendMoveButton)
+    if(!turno){
+      sendMoveButton.isEnabled = false
+    }
   }
 
   private fun iniciarNuevoJuego() {
@@ -117,7 +128,7 @@ class GameActivity : AppCompatActivity() {
     //if (posicionesMinas.isNotEmpty()) {
     //  tableroLogico.setPosicionesMinas(posicionesMinas) // Esta función la debes crear en tu clase Tablero
     //}
-    tableroLogico = Tablero(config.filas, config.columnas, config.minas, "Victor", posicionesMinas)
+    tableroLogico = Tablero(config.filas, config.columnas, config.minas, "Jugador", posicionesMinas)
     //tableroLogico = Tablero(config.filas, config.columnas, config.minas, "Victor")
     juegoActivo = true
 
@@ -168,7 +179,7 @@ class GameActivity : AppCompatActivity() {
         }
   }
 
-  private fun setupButtonListener() {
+  fun setupButtonListener() {
     val config = gameConfig!!
     sendMoveButton.setOnClickListener {
       if (!juegoActivo) {
@@ -206,6 +217,8 @@ class GameActivity : AppCompatActivity() {
           resultadoJugada = 1
         }
       }
+
+      Thread { cliente?.enviarMensaje("CHANGE_TURN") }.start()
 
       // --- Le dice al MODELO qué hacer ---
       /*val resultadoJugada: Int =
@@ -303,5 +316,16 @@ class GameActivity : AppCompatActivity() {
       }
     }
     actualizarVistaTablero() // Vuelve a dibujar el tablero con todo revelado
+  }
+
+  fun setTurno(turn: Boolean){
+    this.turno = turn
+    runOnUiThread {
+      sendMoveButton.isEnabled = turn
+    }
+  }
+
+  fun getTurno(): Boolean{
+    return turno
   }
 }
