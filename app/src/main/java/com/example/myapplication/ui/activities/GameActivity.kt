@@ -34,8 +34,10 @@ class GameActivity : AppCompatActivity() {
   private lateinit var rowEditText: EditText
   private lateinit var columnEditText: EditText
   private lateinit var sendMoveButton: Button
+  private lateinit var jugador1: TextView
+  private lateinit var puntaje1: TextView
 
-  private lateinit var cellViews: Array<Array<TextView>>
+    private lateinit var cellViews: Array<Array<TextView>>
 
   private var juegoActivo = true // Para saber si el juego ha terminado
   private var turno: Boolean = false
@@ -114,6 +116,9 @@ class GameActivity : AppCompatActivity() {
     rowEditText = findViewById(R.id.rowEditText)
     columnEditText = findViewById(R.id.columnEditText)
     sendMoveButton = findViewById(R.id.sendMoveButton)
+    jugador1 = findViewById(R.id.jugador1)
+    jugador1.text = "${jugador.getNombre()}:"
+    puntaje1 = findViewById(R.id.puntaje1)
     if(!turno){
       sendMoveButton.isEnabled = false
     }
@@ -219,7 +224,10 @@ class GameActivity : AppCompatActivity() {
         }
       }
 
-      Thread { cliente?.enviarMensaje("CHANGE_TURN") }.start()
+      Thread {
+        Thread.sleep(1000)
+        cliente?.enviarMensaje("CHANGE_TURN")
+      }.start()
 
       // --- Le dice al MODELO qué hacer ---
       /*val resultadoJugada: Int =
@@ -256,14 +264,14 @@ class GameActivity : AppCompatActivity() {
         cellView.setBackgroundColor(Color.DKGRAY) // Color por defecto de casilla oculta
 
         if (casillaLogica.isMarcada()) {
-          cellView.text = "🚩" // Emoji de bandera
-          cellView.setBackgroundColor(Color.CYAN)
+          cellView.text = "F" // Emoji de bandera
+          cellView.setBackgroundColor(Color.GREEN)
         } else if (casillaLogica.isAbierta()) {
           // La casilla está abierta, mostrar su contenido
           cellView.setBackgroundColor(Color.LTGRAY)
           if (casillaLogica.isMina()) {
             // cellView.text = "M"
-            cellView.text = "💣" // Emoji de bomba
+            cellView.text = "B" // Emoji de bomba
             cellView.setBackgroundColor(Color.RED)
           } else if (casillaLogica.getMinasAlrededor() > 0) {
             cellView.text = casillaLogica.getMinasAlrededor().toString()
@@ -274,6 +282,7 @@ class GameActivity : AppCompatActivity() {
         }
       }
     }
+    actualizarPuntaje()
   }
 
   fun verificarEstadoDelJuego() {
@@ -331,5 +340,9 @@ class GameActivity : AppCompatActivity() {
 
   fun setJuegoActivo(game: Boolean){
     this.juegoActivo = game
+  }
+
+  private fun actualizarPuntaje() {
+    puntaje1.text = "${NameActivity.jugador.getPuntaje()}"
   }
 }

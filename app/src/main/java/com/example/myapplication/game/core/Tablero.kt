@@ -84,6 +84,7 @@ class Tablero(
     * */
 
     fun abrirCasilla(fila: Int, columna: Int): Int {
+        var puntos: Int = 1
         if (!estaDentroDeLimites(fila, columna)) {
             return 0
         }
@@ -95,27 +96,30 @@ class Tablero(
             return -1
         }
 
-        jugador.aumentarPuntuacion()
+        //jugador.aumentarPuntuacion()
         if (casilla.getMinasAlrededor() == 0) {
-            abrirAlrededorRecursivo(casilla)
+            puntos += abrirAlrededorRecursivo(casilla)
         }
 
-        return 1
+        return puntos
     }
 
-    private fun abrirAlrededorRecursivo(casillaOriginal: Casilla) {
+    private fun abrirAlrededorRecursivo(casillaOriginal: Casilla): Int{
+        var puntos: Int = 0
         if (casillaOriginal.getMinasAlrededor() == 0) {
             val casillasAdyacentes = obtenerCasillasAdyacentesParaAbrir(casillaOriginal)
             for (adyacente in casillasAdyacentes) {
                 if (!adyacente.isAbierta() && !adyacente.isMarcada()) {
                     adyacente.abrir()
-                    jugador.aumentarPuntuacion()
+                    puntos++
+                    //jugador.aumentarPuntuacion()
                     if (adyacente.getMinasAlrededor()== 0) {
                         abrirAlrededorRecursivo(adyacente)
                     }
                 }
             }
         }
+        return puntos
     }
     private fun obtenerCasillasAdyacentesParaAbrir(casillaBase: Casilla): List<Casilla> {
         val alrededor = mutableListOf<Casilla>()
@@ -142,20 +146,22 @@ class Tablero(
         }
 
         if(casilla.isMina()){
-            jugador.aumentarPuntuacion()
+            //jugador.aumentarPuntuacion()
+            return 1
         }
 
-        return 1
+        return -1
     }
 
     fun desmarcarCasilla(fila: Int, columna: Int): Int {
         val casilla = tablero[fila][columna]
-        if (!casilla.isMarcada()) {
+        if (casilla.isMarcada()) {
             casilla.desmarcar()
         }
 
         if(casilla.isMina()){
-            jugador.reducirPuntuacion()
+            //jugador.reducirPuntuacion()
+            return -1
         }
 
         return 1

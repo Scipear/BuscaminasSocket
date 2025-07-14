@@ -1,11 +1,11 @@
 <resources>
     <string-array name="move_actions">
-        <item>Abrir Casilla</item>
-        <item>Marcar con Bandera</item>
+        <item>Abrir</item>
+        <item>Poner Bandera</item>
         <item>Quitar Bandera</item>
     </string-array>
     <string name="title_activity_game">GameActivity</string>
     <string name="app_name">Buscaminas</string>
-    <string name="server_mode">Soy Servidor</string>
-    <string name="client_mode">Soy Cliente</string>
+    <string name="server_mode">Iniciar Servidor</string>
+    <string name="client_mode">Iniciar Cliente</string>
 </resources>

@@ -35,6 +35,10 @@ class Jugador(nombreInicial: String) {
         return nombre
     }
 
+    fun getPuntaje(): Int{
+        return puntuacion
+    }
+
     override fun toString(): String {
         return "Jugador(nombre='$nombre', puntuacion=$puntuacion)"
     }

@@ -5,6 +5,7 @@ import android.content.Context
 import com.example.myapplication.Server
 import com.example.myapplication.ui.activities.ConfiguracionTablero
 import com.example.myapplication.ui.activities.GameActivity
+import com.example.myapplication.ui.activities.NameActivity
 import java.io.BufferedReader
 import java.io.InputStreamReader
 import java.io.PrintWriter
@@ -57,6 +58,11 @@ class Cliente(dir: String) : Runnable {
             GameActivity.instance?.setJuegoActivo(false)
             GameActivity.instance?.revelarTableroCompleto()
           }else{
+            if(GameActivity.instance?.getTurno() == true){
+              for(i in 0 until resultado){
+                NameActivity.jugador.aumentarPuntuacion()
+              }
+            }
             GameActivity.instance?.actualizarVistaTablero()
           }
           GameActivity.instance?.verificarEstadoDelJuego()
@@ -67,8 +73,11 @@ class Cliente(dir: String) : Runnable {
         val coordenadas = msj.removePrefix("FLAG_TILE ").split("_")
         val row = coordenadas[0].toInt()
         val col = coordenadas[1].toInt()
-        GameActivity.tableroLogico.marcarCasilla(row, col)
+        val resultado = GameActivity.tableroLogico.marcarCasilla(row, col)
         GameActivity.instance?.runOnUiThread {
+          if(resultado == 1 && GameActivity.instance?.getTurno() == true){
+            NameActivity.jugador.aumentarPuntuacion()
+          }
           GameActivity.instance?.actualizarVistaTablero()
           GameActivity.instance?.verificarEstadoDelJuego()
         }
@@ -78,8 +87,11 @@ class Cliente(dir: String) : Runnable {
         val coordenadas = msj.removePrefix("UNFLAG_TILE ").split("_")
         val row = coordenadas[0].toInt()
         val col = coordenadas[1].toInt()
-        GameActivity.tableroLogico.desmarcarCasilla(row, col)
+        val resultado = GameActivity.tableroLogico.desmarcarCasilla(row, col)
         GameActivity.instance?.runOnUiThread {
+          if(resultado == -1 && GameActivity.instance?.getTurno() == true){
+            NameActivity.jugador.reducirPuntuacion()
+          }
           GameActivity.instance?.actualizarVistaTablero()
           GameActivity.instance?.verificarEstadoDelJuego()
         }

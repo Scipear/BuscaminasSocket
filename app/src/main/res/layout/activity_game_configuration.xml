@@ -8,25 +8,15 @@
     android:padding="16dp"
     tools:context=".ui.activities.GameConfigurationActivity">
 
-    <TextView
-        android:id="@+id/tvConfigTitle"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Selecciona la Dificultad"
-        android:textSize="24sp"
-        android:textStyle="bold"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
-
     <RadioGroup
         android:id="@+id/rgDifficulty"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginTop="24dp"
+        android:translationY="-150dp"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/tvConfigTitle">
+        app:layout_constraintTop_toTopOf="parent">
 
         <RadioButton
             android:id="@+id/rbEasy"
@@ -69,21 +59,22 @@
 
     <EditText
         android:id="@+id/etRows"
-        android:layout_width="0dp"
-        android:layout_height="50dp"
-        android:layout_marginTop="16dp"
-        android:hint="Número de Filas"
+        android:layout_width="177dp"
+        android:layout_height="41dp"
+        android:hint="Filas"
         android:inputType="number"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/rgDifficulty" />
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.483" />
 
     <EditText
         android:id="@+id/etColumns"
-        android:layout_width="0dp"
-        android:layout_height="50dp"
+        android:layout_width="179dp"
+        android:layout_height="46dp"
         android:layout_marginTop="8dp"
-        android:hint="Número de Columnas"
+        android:hint="Columnas"
         android:inputType="number"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -91,10 +82,10 @@
 
     <EditText
         android:id="@+id/etMines"
-        android:layout_width="0dp"
-        android:layout_height="50dp"
+        android:layout_width="178dp"
+        android:layout_height="40dp"
         android:layout_marginTop="8dp"
-        android:hint="Número de Minas"
+        android:hint="Minas"
         android:inputType="number"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -103,12 +94,17 @@
 
     <Button
         android:id="@+id/btnStartGame"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
+        android:layout_width="266dp"
+        android:layout_height="66dp"
+        android:backgroundTint="#2196F3"
         android:text="Iniciar Partida"
         android:textSize="18sp"
+        app:cornerRadius="50dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent" />
+        app:layout_constraintHorizontal_bias="0.495"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.767" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
