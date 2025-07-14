@@ -64,6 +64,7 @@ class Cliente(dir: String) : Runnable {
               }
             }
             GameActivity.instance?.actualizarVistaTablero()
+            GameActivity.instance?.enviarDatosJugador()
           }
           GameActivity.instance?.verificarEstadoDelJuego()
         }
@@ -79,6 +80,7 @@ class Cliente(dir: String) : Runnable {
             NameActivity.jugador.aumentarPuntuacion()
           }
           GameActivity.instance?.actualizarVistaTablero()
+          GameActivity.instance?.enviarDatosJugador()
           GameActivity.instance?.verificarEstadoDelJuego()
         }
       }
@@ -93,6 +95,7 @@ class Cliente(dir: String) : Runnable {
             NameActivity.jugador.reducirPuntuacion()
           }
           GameActivity.instance?.actualizarVistaTablero()
+          GameActivity.instance?.enviarDatosJugador()
           GameActivity.instance?.verificarEstadoDelJuego()
         }
       }
@@ -103,6 +106,22 @@ class Cliente(dir: String) : Runnable {
         GameActivity.instance?.runOnUiThread {
           if(nuevoTurno){
             GameActivity.instance?.setupButtonListener()
+          }
+        }
+      }
+
+      "PLAYER_DATA" -> {
+        val datos = msj.removePrefix("PLAYER_DATA ").split("_")
+        val nombre = datos[0]
+        val puntaje = datos[1].toInt()
+        val nombrePropio = NameActivity.jugador.getNombre()
+        val nombreJ2 = GameActivity.instance?.getNombreJ2()
+        GameActivity.instance?.runOnUiThread {
+          if(nombre != nombrePropio){
+            println("Entro aqui con el nombre: $nombre")
+            GameActivity.instance?.setNombreJ2(nombre)
+            GameActivity.instance?.setPuntajeJ2(puntaje)
+            GameActivity.instance?.actualizarVistaTablero()
           }
         }
       }

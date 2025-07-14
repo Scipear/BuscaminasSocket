@@ -27,7 +27,7 @@ class GameActivity : AppCompatActivity() {
   }
   private var gameConfig: ConfiguracionTablero? = null
   private var posicionesMinas: List<Pair<Int, Int>> = emptyList()
-  private val CELL_SIZE_DP = 40 // Tamaño de cada celda en DP
+  private val CELL_SIZE_DP = 40
 
   private lateinit var matrixGridLayout: GridLayout
   private lateinit var actionSpinner: Spinner
@@ -36,33 +36,34 @@ class GameActivity : AppCompatActivity() {
   private lateinit var sendMoveButton: Button
   private lateinit var jugador1: TextView
   private lateinit var puntaje1: TextView
+  private lateinit var jugador2: TextView
+  private lateinit var puntaje2: TextView
 
     private lateinit var cellViews: Array<Array<TextView>>
 
-  private var juegoActivo = true // Para saber si el juego ha terminado
+  private var juegoActivo = true
   private var turno: Boolean = false
   private var toastActual: Toast? = null
   private val cliente = MainActivity.Sockets.clienteU
   private val server = MainActivity.Sockets.serverU
   private val jugador = NameActivity.jugador
+  private var j2Nombre: String = ""
+  private var j2Puntaje: Int = 0
 
   override fun onCreate(savedInstanceState: Bundle?) {
     super.onCreate(savedInstanceState)
-    enableEdgeToEdge() // Para el diseño Edge-to-Edge
-    setContentView(R.layout.activity_game) // Carga el XML
+    enableEdgeToEdge()
+    setContentView(R.layout.activity_game)
     instance = this
 
     recuperarConfiguracion()
 
-    // --- PASO 2: VALIDAR QUE LA CONFIGURACIÓN SE RECIBIÓ CORRECTAMENTE ---
     if (gameConfig == null) {
-      // Si no hay configuración, no podemos iniciar el juego.
-      // Mostramos un error y cerramos la actividad.
       Toast.makeText(
               this, "Error: No se pudo cargar la configuración del juego.", Toast.LENGTH_LONG)
           .show()
-      finish() // Cierra GameActivity y vuelve a la pantalla anterior
-      return // Detiene la ejecución de onCreate para evitar crashes
+      finish()
+      return
     }
 
     if(server != null){
@@ -87,10 +88,8 @@ class GameActivity : AppCompatActivity() {
   private fun recuperarConfiguracion() {
     gameConfig =
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-          // Método moderno y seguro para Android 13 (API 33) y superior
           intent.getSerializableExtra("GAME_CONFIG", ConfiguracionTablero::class.java)
         } else {
-          // Método antiguo (obsoleto) para versiones anteriores
           @Suppress("DEPRECATION")
           intent.getSerializableExtra("GAME_CONFIG") as? ConfiguracionTablero
         }
@@ -102,12 +101,6 @@ class GameActivity : AppCompatActivity() {
         @Suppress("DEPRECATION")
         intent.getSerializableExtra("POS_MINAS") as? ArrayList<Pair<Int, Int>>
       } ?: emptyList()
-
-
-    // Log para depuración
-    if (gameConfig == null) {
-      Log.e("GameActivity", "¡ERROR! No se recibió la configuración del juego en el Intent.")
-    }
   }
 
   private fun inicializarVistas() {
@@ -119,6 +112,8 @@ class GameActivity : AppCompatActivity() {
     jugador1 = findViewById(R.id.jugador1)
     jugador1.text = "${jugador.getNombre()}:"
     puntaje1 = findViewById(R.id.puntaje1)
+    jugador2 = findViewById(R.id.jugador2)
+    puntaje2 = findViewById(R.id.puntaje2)
     if(!turno){
       sendMoveButton.isEnabled = false
     }
@@ -126,26 +121,18 @@ class GameActivity : AppCompatActivity() {
 
   private fun iniciarNuevoJuego() {
     val config = gameConfig!!
-
-    // 1. Crear la instancia del MODELO
-    //tableroLogico.setFilas(config.filas)
-    //tableroLogico.setColumnas(config.columnas)
-    //tableroLogico.setMinas(config.minas)
-    //if (posicionesMinas.isNotEmpty()) {
-    //  tableroLogico.setPosicionesMinas(posicionesMinas) // Esta función la debes crear en tu clase Tablero
-    //}
     tableroLogico = Tablero(config.filas, config.columnas, config.minas, jugador.getNombre(), posicionesMinas)
-    //tableroLogico = Tablero(config.filas, config.columnas, config.minas, "Victor")
     juegoActivo = true
+    enviarDatosJugador()
 
-    // 2. Crear la VISTA inicial
-    setupGameGrid() // Crea los TextViews
-    actualizarVistaTablero() // Dibuja el estado inicial del tablero (todo oculto)
+    //Crear la VISTA inicial
+    setupGameGrid()
+    actualizarVistaTablero()
   }
 
   private fun setupGameGrid() {
     val config = gameConfig!!
-    matrixGridLayout.removeAllViews() // Limpiar el tablero si se reinicia el juego
+    matrixGridLayout.removeAllViews() //Limpiar el tablero si se reinicia el juego
     matrixGridLayout.rowCount = config.filas
     matrixGridLayout.columnCount = config.columnas
     cellViews = Array(config.filas) { Array(config.columnas) { TextView(this) } }
@@ -228,32 +215,10 @@ class GameActivity : AppCompatActivity() {
         Thread.sleep(1000)
         cliente?.enviarMensaje("CHANGE_TURN")
       }.start()
-
-      // --- Le dice al MODELO qué hacer ---
-      /*val resultadoJugada: Int =
-          when (actionSpinner.selectedItemPosition) {
-            0 -> {
-              msj = "OPEN_TILE ${row}_${col}"
-              cliente?.enviarMensaje(msj)
-              //tableroLogico.abrirCasilla(row, col)
-            }
-            1 -> tableroLogico.marcarCasilla(row, col)
-            2 -> tableroLogico.desmarcarCasilla(row, col)
-            else -> 0
-          }*/
-      // --- Pide a la VISTA que se actualice ---
-
-      //actualizarVistaTablero()
-      //if (!juegoActivo) {
-      //  revelarTableroCompleto()
-      //}
-      // --- Comprueba el resultado del juego desde el MODELO ---
-      //verificarEstadoDelJuego()
     }
   }
 
-  // --- VISTA: Función clave para sincronizar la UI con el estado del Modelo ---
-  public fun actualizarVistaTablero() {
+  fun actualizarVistaTablero() {
     val config = gameConfig!!
     for (r in 0 until config.filas) {
       for (c in 0 until config.columnas) {
@@ -264,14 +229,13 @@ class GameActivity : AppCompatActivity() {
         cellView.setBackgroundColor(Color.DKGRAY) // Color por defecto de casilla oculta
 
         if (casillaLogica.isMarcada()) {
-          cellView.text = "F" // Emoji de bandera
+          cellView.text = "F"
           cellView.setBackgroundColor(Color.GREEN)
         } else if (casillaLogica.isAbierta()) {
           // La casilla está abierta, mostrar su contenido
           cellView.setBackgroundColor(Color.LTGRAY)
           if (casillaLogica.isMina()) {
-            // cellView.text = "M"
-            cellView.text = "B" // Emoji de bomba
+            cellView.text = "B"
             cellView.setBackgroundColor(Color.RED)
           } else if (casillaLogica.getMinasAlrededor() > 0) {
             cellView.text = casillaLogica.getMinasAlrededor().toString()
@@ -300,19 +264,14 @@ class GameActivity : AppCompatActivity() {
             2 -> "¡Felicidades! ¡Has ganado!"
             else -> ""
           }
-      // Toast.makeText(this, mensaje, Toast.LENGTH_LONG).show()
       mostrarToast(mensaje)
-      mostrarToast(tableroLogico.getJugador().toString())
-      // Opcional: revelar todo el tablero al terminar
+      //mostrarToast(tableroLogico.getJugador().toString())
       revelarTableroCompleto()
     }
   }
 
   private fun mostrarToast(mensaje: String, duracion: Int = Toast.LENGTH_SHORT) {
-    // Paso 2: Cancelar el Toast anterior si existe
     toastActual?.cancel()
-
-    // Paso 3: Crear el nuevo Toast, mostrarlo y guardarlo en la variable
     toastActual = Toast.makeText(this, mensaje, duracion)
     toastActual?.show()
   }
@@ -324,7 +283,7 @@ class GameActivity : AppCompatActivity() {
         tableroLogico.getCasilla(r, c)?.abrir()
       }
     }
-    actualizarVistaTablero() // Vuelve a dibujar el tablero con todo revelado
+    actualizarVistaTablero()
   }
 
   fun setTurno(turn: Boolean){
@@ -344,5 +303,24 @@ class GameActivity : AppCompatActivity() {
 
   private fun actualizarPuntaje() {
     puntaje1.text = "${NameActivity.jugador.getPuntaje()}"
+    puntaje2.text = "${j2Puntaje}"
+  }
+
+  fun enviarDatosJugador(){
+    val msj = "PLAYER_DATA ${jugador.getNombre()}_${jugador.getPuntaje()}"
+    Thread { cliente?.enviarMensaje(msj) }.start()
+  }
+
+  fun setNombreJ2(name: String){
+    this.j2Nombre = name
+    jugador2.text = "${j2Nombre}:"
+  }
+
+  fun getNombreJ2(): String{
+    return j2Nombre
+  }
+
+  fun setPuntajeJ2(points: Int){
+    this.j2Puntaje = points
   }
 }
