@@ -51,9 +51,15 @@ class Cliente(dir: String) : Runnable {
         val coordenadas = msj.removePrefix("OPEN_TILE ").split("_")
         val row = coordenadas[0].toInt()
         val col = coordenadas[1].toInt()
-        GameActivity.tableroLogico.abrirCasilla(row, col)
+        val resultado = GameActivity.tableroLogico.abrirCasilla(row, col)
         GameActivity.instance?.runOnUiThread {
-          GameActivity.instance?.actualizarVistaTablero()
+          if(resultado == -1){
+            GameActivity.instance?.setJuegoActivo(false)
+            GameActivity.instance?.revelarTableroCompleto()
+          }else{
+            GameActivity.instance?.actualizarVistaTablero()
+          }
+          GameActivity.instance?.verificarEstadoDelJuego()
         }
       }
 
@@ -64,11 +70,7 @@ class Cliente(dir: String) : Runnable {
         GameActivity.tableroLogico.marcarCasilla(row, col)
         GameActivity.instance?.runOnUiThread {
           GameActivity.instance?.actualizarVistaTablero()
-        }
-        if(GameActivity.instance?.getTurno() == true){
-          GameActivity.instance?.setTurno(false)
-        }else{
-          GameActivity.instance?.setTurno(true)
+          GameActivity.instance?.verificarEstadoDelJuego()
         }
       }
 
@@ -79,11 +81,7 @@ class Cliente(dir: String) : Runnable {
         GameActivity.tableroLogico.desmarcarCasilla(row, col)
         GameActivity.instance?.runOnUiThread {
           GameActivity.instance?.actualizarVistaTablero()
-        }
-        if(GameActivity.instance?.getTurno() == true){
-          GameActivity.instance?.setTurno(false)
-        }else{
-          GameActivity.instance?.setTurno(true)
+          GameActivity.instance?.verificarEstadoDelJuego()
         }
       }
 

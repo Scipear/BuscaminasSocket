@@ -9,8 +9,6 @@ class Tablero(
     private var nombre: String
 ) {
     private var jugadas: Int = 0
-    private var juegoTerminado: Boolean = false
-    private var victoria: Boolean = false
     private val tablero: Array<Array<Casilla>>
     private var jugador: Jugador = Jugador(nombre)
 
@@ -90,15 +88,13 @@ class Tablero(
             return 0
         }
         val casilla = tablero[fila][columna]
-        
-        if (casilla.isMina()) {
-            juegoTerminado = true
-            victoria = false
-            return -1
-        }
-        
         jugadas++
         casilla.abrir()
+
+        if (casilla.isMina()) {
+            return -1
+        }
+
         jugador.aumentarPuntuacion()
         if (casilla.getMinasAlrededor() == 0) {
             abrirAlrededorRecursivo(casilla)

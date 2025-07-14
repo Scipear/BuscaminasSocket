@@ -42,6 +42,7 @@ class GameActivity : AppCompatActivity() {
   private var toastActual: Toast? = null
   private val cliente = MainActivity.Sockets.clienteU
   private val server = MainActivity.Sockets.serverU
+  private val jugador = NameActivity.jugador
 
   override fun onCreate(savedInstanceState: Bundle?) {
     super.onCreate(savedInstanceState)
@@ -128,7 +129,7 @@ class GameActivity : AppCompatActivity() {
     //if (posicionesMinas.isNotEmpty()) {
     //  tableroLogico.setPosicionesMinas(posicionesMinas) // Esta función la debes crear en tu clase Tablero
     //}
-    tableroLogico = Tablero(config.filas, config.columnas, config.minas, "Jugador", posicionesMinas)
+    tableroLogico = Tablero(config.filas, config.columnas, config.minas, jugador.getNombre(), posicionesMinas)
     //tableroLogico = Tablero(config.filas, config.columnas, config.minas, "Victor")
     juegoActivo = true
 
@@ -235,12 +236,11 @@ class GameActivity : AppCompatActivity() {
       // --- Pide a la VISTA que se actualice ---
 
       //actualizarVistaTablero()
-      if (resultadoJugada == -1) {
-        juegoActivo = false
-        revelarTableroCompleto()
-      }
+      //if (!juegoActivo) {
+      //  revelarTableroCompleto()
+      //}
       // --- Comprueba el resultado del juego desde el MODELO ---
-      verificarEstadoDelJuego()
+      //verificarEstadoDelJuego()
     }
   }
 
@@ -276,7 +276,7 @@ class GameActivity : AppCompatActivity() {
     }
   }
 
-  private fun verificarEstadoDelJuego() {
+  fun verificarEstadoDelJuego() {
     val resultado = tableroLogico.verificarResultado()
     println("Resultado del juego es: ${resultado}")
 
@@ -308,7 +308,7 @@ class GameActivity : AppCompatActivity() {
     toastActual?.show()
   }
 
-  private fun revelarTableroCompleto() {
+  fun revelarTableroCompleto() {
     val config = gameConfig!!
     for (r in 0 until config.filas) {
       for (c in 0 until config.columnas) {
@@ -327,5 +327,9 @@ class GameActivity : AppCompatActivity() {
 
   fun getTurno(): Boolean{
     return turno
+  }
+
+  fun setJuegoActivo(game: Boolean){
+    this.juegoActivo = game
   }
 }

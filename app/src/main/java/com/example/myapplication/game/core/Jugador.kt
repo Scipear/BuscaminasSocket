@@ -2,8 +2,8 @@ package com.example.myapplication.game.core
 
 class Jugador(nombreInicial: String) {
 
-    var nombre: String = nombreInicial
-    var puntuacion: Int = 0
+    private var nombre: String = nombreInicial
+    private var puntuacion: Int = 0
         private set
 
     constructor(nombreInicial: String, puntuacionInicial: Int) : this(nombreInicial) {
@@ -29,6 +29,10 @@ class Jugador(nombreInicial: String) {
         } else {
             println("La puntuación no puede ser negativa. No se ha modificado.")
         }
+    }
+
+    fun getNombre(): String{
+        return nombre
     }
 
     override fun toString(): String {
