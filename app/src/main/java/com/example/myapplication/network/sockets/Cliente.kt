@@ -149,21 +149,8 @@ class Cliente(dir: String) : Runnable {
     }
   }
 
-  fun interpretarConfiguracion(msj: String): ConfiguracionTablero? {
-    return try {
-      val divide = msj.removePrefix("GAME_CONFIG ").split("_")
-      val filas = divide[0].toInt()
-      val columnas = divide[1].toInt()
-      val minas = divide[2].toInt()
-      ConfiguracionTablero(filas, columnas, minas)
-    } catch (e: Exception) {
-      null
-    }
-  }
-
   fun enviarMensaje(msj: String) {
     try {
-      println("El mensaje enviado es: $msj")
       dos?.println(msj)
     } catch (e: Exception) {
       e.printStackTrace()
@@ -173,10 +160,8 @@ class Cliente(dir: String) : Runnable {
   fun recibirMensaje() {
     try {
       var mensajeRecibido: String
-      println("NAda aqui por lo que parece pq aja")
       while (socket?.isConnected == true) {
         mensajeRecibido = dis?.readLine().toString()
-        println("El mensaje recibido fue: $mensajeRecibido")
         descifrarMensaje(mensajeRecibido)
       }
     } catch (e: Exception) {

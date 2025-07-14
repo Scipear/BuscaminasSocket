@@ -286,6 +286,16 @@ class GameActivity : AppCompatActivity() {
     actualizarVistaTablero()
   }
 
+  private fun actualizarPuntaje() {
+    puntaje1.text = "${NameActivity.jugador.getPuntaje()}"
+    puntaje2.text = "${j2Puntaje}"
+  }
+
+  fun enviarDatosJugador(){
+    val msj = "PLAYER_DATA ${jugador.getNombre()}_${jugador.getPuntaje()}"
+    Thread { cliente?.enviarMensaje(msj) }.start()
+  }
+
   fun setTurno(turn: Boolean){
     this.turno = turn
     runOnUiThread {
@@ -299,16 +309,6 @@ class GameActivity : AppCompatActivity() {
 
   fun setJuegoActivo(game: Boolean){
     this.juegoActivo = game
-  }
-
-  private fun actualizarPuntaje() {
-    puntaje1.text = "${NameActivity.jugador.getPuntaje()}"
-    puntaje2.text = "${j2Puntaje}"
-  }
-
-  fun enviarDatosJugador(){
-    val msj = "PLAYER_DATA ${jugador.getNombre()}_${jugador.getPuntaje()}"
-    Thread { cliente?.enviarMensaje(msj) }.start()
   }
 
   fun setNombreJ2(name: String){

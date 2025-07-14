@@ -21,10 +21,10 @@ class ServerActivity : AppCompatActivity(), ClientHandler.ClienteConectadoListen
     super.onCreate(savedInstanceState)
     setContentView(R.layout.activity_server)
 
-    // 1. Encontrar el TextView por su ID
+    // Encontrar el TextView por su ID
     val tvIpAddress: TextView = findViewById(R.id.tvIpAddress)
 
-    // 2. Obtener la dirección IP y mostrarla
+    // Obtener la dirección IP y mostrarla
     val ipAddress = direccion.getIPAddress()
     if (ipAddress != null) {
       tvIpAddress.text = ipAddress

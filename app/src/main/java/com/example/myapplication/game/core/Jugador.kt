@@ -23,14 +23,6 @@ class Jugador(nombreInicial: String) {
         this.puntuacion--
     }
 
-    fun setPuntuacion(nuevaPuntuacion: Int) {
-        if (nuevaPuntuacion >= 0) {
-            this.puntuacion = nuevaPuntuacion
-        } else {
-            println("La puntuación no puede ser negativa. No se ha modificado.")
-        }
-    }
-
     fun getNombre(): String{
         return nombre
     }

@@ -77,12 +77,6 @@ class Tablero(
         return fila >= 0 && fila < filas && columna >= 0 && columna < columnas
     }
 
-    /*
-    * -1 = Perdiate
-    *  0 = No válido
-    * 1 = Sigue la partida
-    * */
-
     fun abrirCasilla(fila: Int, columna: Int): Int {
         var puntos: Int = 1
         if (!estaDentroDeLimites(fila, columna)) {
@@ -96,7 +90,6 @@ class Tablero(
             return -1
         }
 
-        //jugador.aumentarPuntuacion()
         if (casilla.getMinasAlrededor() == 0) {
             puntos += abrirAlrededorRecursivo(casilla)
         }
@@ -112,7 +105,6 @@ class Tablero(
                 if (!adyacente.isAbierta() && !adyacente.isMarcada()) {
                     adyacente.abrir()
                     puntos++
-                    //jugador.aumentarPuntuacion()
                     if (adyacente.getMinasAlrededor()== 0) {
                         abrirAlrededorRecursivo(adyacente)
                     }
@@ -146,7 +138,6 @@ class Tablero(
         }
 
         if(casilla.isMina()){
-            //jugador.aumentarPuntuacion()
             return 1
         }
 
@@ -166,62 +157,6 @@ class Tablero(
 
         return 1
     }
-
-
-    private fun seguir_partida(): Boolean {
-        for (r in 0 until filas) {
-            for (c in 0 until columnas) {
-                val casilla = tablero[r][c]
-                if (!casilla.isMina() && !casilla.isAbierta()) {
-                    return false
-                }
-                if(casilla.isMina() && !casilla.isMarcada()){
-                    return false
-                }
-            }
-        }
-        return true
-    }
-
-
-    fun getFilas(): Int = filas
-
-    fun setFilas(filas:Int) {
-        this.filas = filas
-    }
-
-    fun getColumnas(): Int = columnas
-
-    fun setColumnas(columnas:Int){
-        this.columnas = columnas
-    }
-
-    fun getMinas(): Int = numeroMinas
-
-    fun setMinas(minas:Int){
-        this.numeroMinas = minas
-    }
-
-    fun setNombre(nombre:String){
-        this.nombre = nombre
-    }
-
-    fun getJugadas(): Int = jugadas
-
-    fun getTablero(): Array<Array<Casilla>>{
-        return tablero
-    }
-
-    fun getJugador(): Jugador{
-        return this.jugador
-    }
-
-    fun setJugadas(nuevasJugadas: Int) {
-        if (nuevasJugadas >= 0) { // Ejemplo de validación
-            this.jugadas = nuevasJugadas
-        }
-    }
-
 
     fun getCasilla(fila: Int, columna: Int): Casilla? {
         if (fila in 0 until filas && columna in 0 until columnas) {
@@ -260,7 +195,7 @@ class Tablero(
         actualizarMinasAlrededor()
     }
 
-    fun seguirPartida(): Boolean {
+    fun verificarResultado(): Int {
         var casillasAbiertas = 0
         var minasMarcadasCorrectamente = 0
 
@@ -268,56 +203,12 @@ class Tablero(
             for (c in 0 until columnas) {
                 val casilla = tablero[r][c]
 
+                // Verificar si se ha abierto una mina.
                 if (casilla.isAbierta() && casilla.isMina()) {
-                    return false // La partida no debe continuar (0 en C++)
+                    return 0 // Resultado 0 mina explotada
                 }
 
-                // Contar casillas abiertas (que no sean la mina explotada, ya que habríamos retornado)
-                if (casilla.isAbierta()) {
-                    casillasAbiertas++
-                }
-
-                // Contar minas correctamente marcadas
-                // Una casilla puede estar marcada y ser una mina, independientemente de si está abierta o no.
-                // Sin embargo, si estaba abierta y era mina, ya se retornó false.
-                // Así que aquí solo cuentan las minas marcadas que no están (fatalmente) abiertas.
-                if (casilla.isMarcada() && casilla.isMina()) {
-                    minasMarcadasCorrectamente++
-                }
-            }
-        }
-
-        // Si se completa el bucle, no se ha abierto ninguna mina.
-        // Ahora se verifican las condiciones de victoria.
-
-        // Condición de victoria 1: Todas las minas están correctamente marcadas.
-        if (minasMarcadasCorrectamente == numeroMinas) {
-            return false // La partida no debe continuar (0 en C++)
-        }
-
-        // Condición de victoria 2: Todas las casillas seguras están abiertas.
-        val totalCasillasSeguras = (filas * columnas) - numeroMinas
-        if (casillasAbiertas == totalCasillasSeguras) {
-            return false // La partida no debe continuar (0 en C++)
-        }
-
-        return true // La partida debe continuar (1 en C++)
-    }
-
-    fun verificarResultado(): Int {
-        var casillasAbiertas = 0
-        var minasMarcadasCorrectamente = 0 // Casillas que son minas y están marcadas
-
-        for (r in 0 until filas) {
-            for (c in 0 until columnas) {
-                val casilla = tablero[r][c]
-
-                // Prioridad 1: Verificar si se ha abierto una mina.
-                if (casilla.isAbierta() && casilla.isMina()) {
-                    return 0 // Resultado 0: Perdió (mina explotada)
-                }
-
-                // Contar casillas abiertas (si no es una mina abierta)
+                // Contar casillas abiertas
                 if (casilla.isAbierta()) {
                     casillasAbiertas++
                 }
@@ -328,9 +219,6 @@ class Tablero(
                 }
             }
         }
-
-        // Si llegamos aquí, no se ha abierto ninguna mina.
-        // Verificar condiciones de victoria.
 
         // Condición de victoria: Todas las minas están correctamente marcadas.
         if (minasMarcadasCorrectamente == numeroMinas) {
@@ -338,15 +226,13 @@ class Tablero(
             return 1 // Resultado 1: Ganó (marcó todas las minas)
         }
 
-        // Condición de victoria: Todas las casillas seguras (sin minas) están abiertas.
-        // Esto se comprueba después de la condición de marcar todas las minas,
-        // siguiendo la lógica del `else if` en C++.
+        // Condición de victoria Todas las casillas seguras (sin minas) están abiertas.
         val totalCasillasSeguras = (filas * columnas) - numeroMinas
         if (casillasAbiertas == totalCasillasSeguras) {
-            return 2 // Resultado 2: Ganó (abrió todas las seguras)
+            return 2 // Resultado 2
         }
 
         // Si ninguna de las condiciones anteriores se cumple.
-        return 3 // Resultado 3: Partida en progreso / otro estado
+        return 3 // Resultado 3 Partida en progreso
     }
 }

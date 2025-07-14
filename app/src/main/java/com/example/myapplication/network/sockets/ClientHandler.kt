@@ -22,8 +22,6 @@ class ClientHandler(sock: Socket) : Runnable {
     dis = BufferedReader(InputStreamReader(socket!!.getInputStream()))
     dos = PrintWriter(socket!!.getOutputStream(), true)
 
-    //clientes.add(this)
-
     while (socket!!.isConnected) {
       try {
         var mensaje: String = dis!!.readLine()

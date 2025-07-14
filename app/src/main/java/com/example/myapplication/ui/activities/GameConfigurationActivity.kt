@@ -66,7 +66,7 @@ class GameConfigurationActivity : AppCompatActivity() {
         }
 
     if (config != null) {
-      // Configuración válida, podemos iniciar el juego
+      // Configuración válida
       Toast.makeText(
               this,
               "Iniciando partida: ${config.filas}x${config.columnas}, ${config.minas} minas",
