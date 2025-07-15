@@ -24,6 +24,14 @@ class Casilla(coordenadaX: Int, coordenadaY: Int) { // Constructor primario
         return minas_alrededor
     }
 
+    fun isDisponible(): Boolean {
+        return disponible
+    }
+
+    fun setDisponible(estaDisponible: Boolean) {
+        this.disponible = estaDisponible
+    }
+
     fun isMina(): Boolean {
         return mina
     }
@@ -53,7 +61,7 @@ class Casilla(coordenadaX: Int, coordenadaY: Int) { // Constructor primario
     fun abrir() {
         this.abierta = true
         this.disponible = false
-        }
+    }
 
     fun marcar() {
         this.marcada = true

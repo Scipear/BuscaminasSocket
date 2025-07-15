@@ -183,38 +183,35 @@ class GameActivity : AppCompatActivity() {
       val row = rowEditText.text.toString().toIntOrNull()
       val col = columnEditText.text.toString().toIntOrNull()
 
-      if (row == null ||
-          col == null ||
-          row !in 0 until config.filas ||
-          col !in 0 until config.columnas) {
+      if (row == null || col == null || row !in 0 until config.filas || col !in 0 until config.columnas) {
         Toast.makeText(this, "Coordenadas inválidas.", Toast.LENGTH_SHORT).show()
         return@setOnClickListener
       }
 
-      val msj: String
-      var resultadoJugada: Int = -1
-      when(actionSpinner.selectedItemPosition) {
-        0 -> {
-          msj = "OPEN_TILE ${row}_${col}"
-          Thread { cliente?.enviarMensaje(msj) }.start()
-          resultadoJugada = 1
-        }
-        1 -> {
-          msj = "FLAG_TILE ${row}_${col}"
-          Thread { cliente?.enviarMensaje(msj) }.start()
-          resultadoJugada = 1
-        }
-        2 -> {
-          msj = "UNFLAG_TILE ${row}_${col}"
-          Thread { cliente?.enviarMensaje(msj) }.start()
-          resultadoJugada = 1
-        }
-      }
+      val disponibilidad = tableroLogico.getCasilla(row, col)?.isDisponible()
 
-      Thread {
-        Thread.sleep(1000)
-        cliente?.enviarMensaje("CHANGE_TURN")
-      }.start()
+      if(disponibilidad == true){
+        val msj: String
+        when(actionSpinner.selectedItemPosition) {
+          0 -> {
+            msj = "OPEN_TILE ${row}_${col}"
+            Thread { cliente?.enviarMensaje(msj) }.start()
+          }
+          1 -> {
+            msj = "FLAG_TILE ${row}_${col}"
+            Thread { cliente?.enviarMensaje(msj) }.start()
+          }
+          2 -> {
+            msj = "UNFLAG_TILE ${row}_${col}"
+            Thread { cliente?.enviarMensaje(msj) }.start()
+          }
+        }
+
+        Thread {
+          Thread.sleep(1000)
+          cliente?.enviarMensaje("CHANGE_TURN")
+        }.start()
+      }
     }
   }
 
@@ -257,14 +254,20 @@ class GameActivity : AppCompatActivity() {
       juegoActivo = false
       sendMoveButton.isEnabled = false // Desactivar el botón
 
-      val mensaje =
-          when (resultado) {
-            0 -> "¡Boom! Has perdido."
-            1,
-            2 -> "¡Felicidades! ¡Has ganado!"
-            else -> ""
-          }
-      mostrarToast(mensaje)
+      if(turno && resultado == 0){
+        mostrarToast("¡Boom! Has perdido")
+      }else{
+        mostrarToast("¡Felicidades! ¡Has ganado!")
+      }
+
+      //val mensaje =
+      //    when (resultado) {
+      //      0 -> "¡Boom! Has perdido."
+      //      1,
+      //      2 -> "¡Felicidades! ¡Has ganado!"
+      //      else -> ""
+      //    }
+      //mostrarToast(mensaje)
       //mostrarToast(tableroLogico.getJugador().toString())
       revelarTableroCompleto()
     }
